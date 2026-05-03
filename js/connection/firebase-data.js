@@ -35,6 +35,7 @@ export const firebaseData = (() => {
 
     let db = null;
     let isInitialized = false;
+    let initPromise = null;
 
     /**
      * Get spam protection data from localStorage
@@ -175,33 +176,6 @@ export const firebaseData = (() => {
     };
 
     /**
-     * Initialize Firebase
-     * @returns {Promise<void>}
-     */
-    const init = async () => {
-        if (isInitialized) { return; }
-
-        if (!window.firebase) {
-            await loadFirebaseSDK();
-        }
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        db = firebase.database();
-
-        // Sign in anonymously so Security Rules can identify the user
-        if (!window.firebase.auth().currentUser) {
-            await window.firebase.auth().signInAnonymously().catch((err) => {
-                console.warn('Anonymous auth unavailable:', err.message);
-            });
-        }
-
-        isInitialized = true;
-    };
-
-    /**
      * Load Firebase SDK dynamically
      * @returns {Promise<void>}
      */
@@ -226,6 +200,38 @@ export const firebaseData = (() => {
             appScript.onerror = reject;
             document.head.appendChild(appScript);
         });
+    };
+
+    /**
+     * Initialize Firebase
+     * @returns {Promise<void>}
+     */
+    const init = () => {
+        if (isInitialized) { return Promise.resolve(); }
+        if (initPromise) { return initPromise; }
+
+        initPromise = (async () => {
+            if (!window.firebase) {
+                await loadFirebaseSDK();
+            }
+
+            if (!window.firebase.apps.length) {
+                window.firebase.initializeApp(firebaseConfig);
+            }
+
+            db = window.firebase.database();
+
+            // Sign in anonymously so Security Rules can identify the user
+            if (!window.firebase.auth().currentUser) {
+                await window.firebase.auth().signInAnonymously().catch((err) => {
+                    console.warn('Anonymous auth unavailable:', err.message);
+                });
+            }
+
+            isInitialized = true;
+        })();
+
+        return initPromise;
     };
 
     /**
@@ -259,9 +265,8 @@ export const firebaseData = (() => {
      * @returns {Promise<{count: number, lists: any[]}>}
      */
     const getComments = async (per = 10, next = 0) => {
-        await init();
-
         try {
+            await init();
             const snapshot = await db.ref('comments').once('value');
             const data = snapshot.val();
             const lists = convertToArray(data);
