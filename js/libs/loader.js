@@ -39,7 +39,10 @@ const loadAOS = (c) => {
             throw new Error('AOS library failed to load');
         }
 
-        window.AOS.init();
+        window.AOS.init({
+            mirror: true,
+            container: 'main',
+        });
     });
 };
 
@@ -71,6 +74,7 @@ const loadAdditionalFont = (c) => {
     const fonts = [
         { css: 'https://fonts.googleapis.com/css2?family=Sacramento&display=swap', family: 'Sacramento' },
         { css: 'https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap', family: 'Noto Naskh Arabic' },
+        { css: 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital@1&display=swap', family: 'Bodoni Moda' },
     ];
 
     /**

@@ -163,7 +163,7 @@ export const card = (() => {
         const head = `
         <div class="d-flex justify-content-between align-items-center">
             <p class="text-theme-auto text-truncate m-0 p-0" style="font-size: 0.95rem;">${renderTitle(c)}</p>
-            <small class="text-theme-auto m-0 p-0" style="font-size: 0.75rem;">${c.created_at}</small>
+            <small class="text-theme-auto m-0 p-0" style="font-size: 0.75rem;">${util.formatDateTime(c.created_at)}</small>
         </div>
         <hr class="my-1">`;
 

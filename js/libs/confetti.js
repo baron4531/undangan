@@ -23,51 +23,59 @@ export const basicAnimation = () => {
 };
 
 /**
- * @param {number} [until=15]
- * @returns {void}
+ * @param {number} [until=15] - Duration in seconds (0 = infinite)
+ * @returns {() => void} Stop function
  */
 export const openAnimation = (until = 15) => {
     if (!window.confetti) {
-        return;
+        return () => {};
     }
 
+    const isInfinite = until === 0;
     const duration = until * 1000;
-    const animationEnd = Date.now() + duration;
+    const animationEnd = isInfinite ? Infinity : Date.now() + duration;
 
     const heart = heartShape();
     const colors = ['#FFC0CB', '#FF1493', '#C71585'];
+
+    let stopped = false;
 
     const randomInRange = (min, max) => {
         return Math.random() * (max - min) + min;
     };
 
     const frame = () => {
+        if (stopped) return;
+
         const timeLeft = animationEnd - Date.now();
+        const tickRatio = isInfinite ? 1 : timeLeft / duration;
 
         colors.forEach((color) => {
             window.confetti({
                 particleCount: 1,
                 startVelocity: 0,
-                ticks: Math.max(50, 75 * (timeLeft / duration)),
+                ticks: isInfinite ? 200 : Math.max(50, 75 * tickRatio),
                 origin: {
                     x: Math.random(),
-                    y: Math.abs(Math.random() - (timeLeft / duration)),
+                    y: isInfinite ? -0.1 : Math.abs(Math.random() - tickRatio),
                 },
                 zIndex: zIndex,
                 colors: [color],
                 shapes: [heart],
                 drift: randomInRange(-0.5, 0.5),
-                gravity: randomInRange(0.5, 1),
+                gravity: randomInRange(0.4, 0.8),
                 scalar: randomInRange(0.5, 1),
             });
         });
 
-        if (timeLeft > 0) {
+        if (timeLeft > 0 || isInfinite) {
             requestAnimationFrame(frame);
         }
     };
 
     requestAnimationFrame(frame);
+
+    return () => { stopped = true; };
 };
 
 /**

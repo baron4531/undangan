@@ -280,6 +280,28 @@ export const util = (() => {
         return str;
     };
 
+    const formatDateTime = (dateString) => {
+        try {
+            const date = new Date(dateString);
+
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${day} ${month} ${year}, ${hours}:${minutes}`;
+        } catch {
+            return dateString;
+        }
+    };
+
     return {
         loader,
         ask,
@@ -297,5 +319,6 @@ export const util = (() => {
         changeOpacity,
         getGMTOffset,
         convertMarkdownToHTML,
+        formatDateTime,
     };
 })();

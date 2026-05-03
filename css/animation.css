@@ -50,6 +50,25 @@
     animation: love 5s ease-in-out infinite;
 }
 
+@keyframes leaf {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-8px) rotate(5deg);
+    }
+    50% {
+        transform: translateY(0) rotate(0deg);
+    }
+    75% {
+        transform: translateY(8px) rotate(-5deg);
+    }
+}
+
+.animate-leaf {
+    animation: leaf 6s ease-in-out infinite;
+}
+
 .slide-desktop {
     transform: scale(1);
     transition: transform 10s linear;

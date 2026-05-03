@@ -1,6 +1,37 @@
 @import url("common.css");
 @import url("animation.css");
 
+/* Leaf decoration SVGs */
+.leaf-decoration {
+    pointer-events: none;
+    z-index: 0;
+}
+
+[data-bs-theme="dark"] .leaf-decoration {
+    filter: invert(1) opacity(0.8) brightness(1.2);
+}
+
+/* Custom opacity utilities */
+.opacity-15 {
+    opacity: 0.15 !important;
+}
+
+.opacity-20 {
+    opacity: 0.2 !important;
+}
+
+.opacity-30 {
+    opacity: 0.3 !important;
+}
+
+.opacity-35 {
+    opacity: 0.35 !important;
+}
+
+.opacity-40 {
+    opacity: 0.4 !important;
+}
+
 html {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
@@ -12,7 +43,8 @@ html {
 }
 
 .font-esthetic {
-    font-family: 'Sacramento', cursive !important;
+    font-family: 'Bodoni Moda', cursive !important;
+    font-weight: 100 !important;
 }
 
 .font-arabic {
@@ -47,7 +79,7 @@ html[data-bs-theme="light"] .btn-transparent {
 
 html[data-bs-theme="light"] .color-theme-svg {
     color: rgb(255, 255, 255);
-    background-color: var(--bs-light);
+    background-color: #e9ecef;
 }
 
 html[data-bs-theme="dark"] .color-theme-svg {
@@ -56,7 +88,7 @@ html[data-bs-theme="dark"] .color-theme-svg {
 }
 
 html[data-bs-theme="light"] .bg-light-dark {
-    background-color: rgb(var(--bs-light-rgb));
+    background-color: #e9ecef;
 }
 
 html[data-bs-theme="dark"] .bg-light-dark {
@@ -112,4 +144,16 @@ svg {
 
 .no-gap-bottom {
     margin-bottom: -0.75rem !important;
+}
+
+/* Carousel gallery images - uniform height with centered content */
+.carousel-gallery-img {
+    height: 300px;
+    width: 100%;
+    object-fit: contain;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+html[data-bs-theme="dark"] .carousel-gallery-img {
+    background-color: rgba(255, 255, 255, 0.03);
 }
