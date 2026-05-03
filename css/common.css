@@ -118,3 +118,7 @@ html[data-bs-theme="light"] .bg-overlay-auto {
 .gif-image {
     max-height: 10rem;
 }
+
+.rounded-25 {
+    border-radius: 25% !important;
+}
