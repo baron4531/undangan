@@ -4,9 +4,9 @@ import { cache } from '../../connection/cache.js';
 export const image = (() => {
 
     /**
-     * @type {NodeListOf<HTMLImageElement>|null}
+     * @type {HTMLImageElement[]}
      */
-    let images = null;
+    let images = [];
 
     /**
      * @type {ReturnType<typeof cache>|null}
@@ -54,7 +54,7 @@ export const image = (() => {
             res: (url) => appendImage(el, url),
             rej: (err) => {
                 console.error(err);
-                progress.invalid('image');
+                progress.complete('image', true);
             },
         });
     };
@@ -64,7 +64,7 @@ export const image = (() => {
      * @returns {void}
      */
     const getByDefault = (el) => {
-        el.onerror = () => progress.invalid('image');
+        el.onerror = () => progress.complete('image', true);
         el.onload = () => {
             el.width = el.naturalWidth;
             el.height = el.naturalHeight;
@@ -74,20 +74,42 @@ export const image = (() => {
         if (el.complete && el.naturalWidth !== 0 && el.naturalHeight !== 0) {
             progress.complete('image');
         } else if (el.complete) {
-            progress.invalid('image');
+            progress.complete('image', true);
         }
+    };
+
+    /**
+     * Returns true only when el has an ancestor that is intentionally hidden on the current
+     * viewport via Bootstrap's responsive pattern (d-none + d-{breakpoint}-block/flex/grid).
+     * This deliberately excludes carousel items, modals, and other JS-driven hidden elements.
+     * @param {HTMLElement} el
+     * @returns {boolean}
+     */
+    const isHidden = (el) => {
+        let node = el.parentElement;
+        while (node && node !== document.body) {
+            if (
+                node.classList.contains('d-none') &&
+                /\bd-(sm|md|lg|xl|xxl)-(block|flex|grid)\b/.test(node.className) &&
+                window.getComputedStyle(node).display === 'none'
+            ) {
+                return true;
+            }
+            node = node.parentElement;
+        }
+        return false;
     };
 
     /**
      * @returns {boolean}
      */
-    const hasDataSrc = () => Array.from(images).some((i) => i.hasAttribute('data-src'));
+    const hasDataSrc = () => images.some((i) => i.hasAttribute('data-src'));
 
     /**
      * @returns {Promise<void>}
      */
     const load = async () => {
-        const imgs = Array.from(images);
+        const imgs = images;
 
         /**
          * @param {function} filter 
@@ -116,7 +138,7 @@ export const image = (() => {
      */
     const init = () => {
         c = cache('image').withForceCache();
-        images = document.querySelectorAll('img');
+        images = Array.from(document.querySelectorAll('img')).filter((el) => !isHidden(el));
         images.forEach(progress.add);
 
         return {
