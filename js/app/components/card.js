@@ -168,10 +168,13 @@ export const card = (() => {
         <hr class="my-1">`;
 
         if (c.gif_url) {
-            return head + `
-            <div class="d-flex justify-content-center align-items-center my-2">
-                <img src="${await gif.get(c.gif_url)}" id="img-gif-${c.uuid}" class="img-fluid mx-auto gif-image rounded-4" alt="selected-gif">
-            </div>`;
+            const gifSrc = await gif.get(c.gif_url).catch(() => null);
+            if (gifSrc) {
+                return head + `
+                <div class="d-flex justify-content-center align-items-center my-2">
+                    <img src="${gifSrc}" id="img-gif-${c.uuid}" class="img-fluid mx-auto gif-image rounded-4" alt="selected-gif">
+                </div>`;
+            }
         }
 
         const moreMaxLength = c.comment.length > maxCommentLength;
