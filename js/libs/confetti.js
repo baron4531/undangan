@@ -1,5 +1,13 @@
 const zIndex = 1057;
 
+const isLowEndDevice = () => {
+    const mem = navigator.deviceMemory;
+    const cores = navigator.hardwareConcurrency;
+    if (mem !== undefined && mem <= 2) return true;
+    if (cores !== undefined && cores <= 2) return true;
+    return false;
+};
+
 /**
  * @returns {any}
  */
@@ -31,7 +39,8 @@ export const openAnimation = (until = 15) => {
         return () => {};
     }
 
-    const isInfinite = until === 0;
+    const isInfinite = until === 0 && !isLowEndDevice();
+    if (until === 0 && isLowEndDevice()) until = 10;
     const duration = until * 1000;
     const animationEnd = isInfinite ? Infinity : Date.now() + duration;
 

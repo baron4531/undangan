@@ -44,6 +44,7 @@ const config = {
     outdir: 'dist',
     define,
     absWorkingDir: root,
+    target: ['chrome60', 'firefox60', 'safari11'],
 };
 
 if (isWatch) {
