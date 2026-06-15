@@ -3,8 +3,8 @@ const zIndex = 1057;
 const isLowEndDevice = () => {
     const mem = navigator.deviceMemory;
     const cores = navigator.hardwareConcurrency;
-    if (mem !== undefined && mem <= 2) return true;
-    if (cores !== undefined && cores <= 2) return true;
+    if (mem !== undefined && mem <= 2) {return true;}
+    if (cores !== undefined && cores <= 2) {return true;}
     return false;
 };
 
@@ -40,42 +40,50 @@ export const openAnimation = (until = 15) => {
     }
 
     const isInfinite = until === 0 && !isLowEndDevice();
-    if (until === 0 && isLowEndDevice()) until = 10;
+    if (until === 0 && isLowEndDevice()) {until = 10;}
     const duration = until * 1000;
     const animationEnd = isInfinite ? Infinity : Date.now() + duration;
 
     const heart = heartShape();
     const colors = ['#FFC0CB', '#FF1493', '#C71585'];
+    const lowEnd = isLowEndDevice();
+    const infiniteTicks = lowEnd ? 120 : 150;
+    const framesPerEmit = lowEnd ? 5 : 3;
 
     let stopped = false;
+    let frameCount = 0;
 
     const randomInRange = (min, max) => {
         return Math.random() * (max - min) + min;
     };
 
     const frame = () => {
-        if (stopped) return;
+        if (stopped) {return;}
 
         const timeLeft = animationEnd - Date.now();
         const tickRatio = isInfinite ? 1 : timeLeft / duration;
+        const shouldEmit = !isInfinite || (frameCount % framesPerEmit === 0);
+        frameCount += 1;
 
-        colors.forEach((color) => {
-            window.confetti({
-                particleCount: 1,
-                startVelocity: 0,
-                ticks: isInfinite ? 200 : Math.max(50, 75 * tickRatio),
-                origin: {
-                    x: Math.random(),
-                    y: isInfinite ? -0.1 : Math.abs(Math.random() - tickRatio),
-                },
-                zIndex: zIndex,
-                colors: [color],
-                shapes: [heart],
-                drift: randomInRange(-0.5, 0.5),
-                gravity: randomInRange(0.4, 0.8),
-                scalar: randomInRange(0.5, 1),
+        if (shouldEmit) {
+            colors.forEach((color) => {
+                window.confetti({
+                    particleCount: 1,
+                    startVelocity: 0,
+                    ticks: isInfinite ? infiniteTicks : Math.max(50, 75 * tickRatio),
+                    origin: {
+                        x: Math.random(),
+                        y: isInfinite ? -0.1 : Math.abs(Math.random() - tickRatio),
+                    },
+                    zIndex: zIndex,
+                    colors: [color],
+                    shapes: [heart],
+                    drift: randomInRange(-0.5, 0.5),
+                    gravity: randomInRange(0.4, 0.8),
+                    scalar: randomInRange(0.5, 1),
+                });
             });
-        });
+        }
 
         if (timeLeft > 0 || isInfinite) {
             requestAnimationFrame(frame);

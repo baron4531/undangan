@@ -177,11 +177,15 @@ export const card = (() => {
             }
         }
 
-        const moreMaxLength = c.comment.length > maxCommentLength;
-        const data = util.convertMarkdownToHTML(util.escapeHtml(moreMaxLength ? (c.comment.slice(0, maxCommentLength) + '...') : c.comment));
+        // c.comment can be null/undefined for gif-only or legacy comments.
+        // We only reach here when there is no gif or the gif failed to load,
+        // so guard against null to avoid throwing and breaking the whole render.
+        const text = c.comment ?? '';
+        const moreMaxLength = text.length > maxCommentLength;
+        const data = util.convertMarkdownToHTML(util.escapeHtml(moreMaxLength ? (text.slice(0, maxCommentLength) + '...') : text));
 
         return head + `
-        <p dir="auto" class="text-theme-auto my-1 mx-0 p-0" style="white-space: pre-wrap !important; font-size: 0.95rem;" data-comment="${util.base64Encode(c.comment)}" id="content-${c.uuid}">${data}</p>
+        <p dir="auto" class="text-theme-auto my-1 mx-0 p-0" style="white-space: pre-wrap !important; font-size: 0.95rem;" data-comment="${util.base64Encode(text)}" id="content-${c.uuid}">${data}</p>
         ${moreMaxLength ? `<p class="d-block mb-2 mt-0 mx-0 p-0"><a class="text-theme-auto" role="button" style="font-size: 0.85rem;" data-show="false" onclick="undangan.comment.showMore(this, '${c.uuid}')">Selengkapnya</a></p>` : ''}`;
     };
 
@@ -190,7 +194,16 @@ export const card = (() => {
      * @returns {Promise<string>}
      */
     const renderContent = async (c) => {
-        const body = await renderBody(c);
+        let body;
+        try {
+            body = await renderBody(c);
+        } catch (err) {
+            // Never let a single comment's render failure (e.g. a transient
+            // gif/network error on malformed data) reject the whole batch.
+            console.error(`Failed to render comment ${c?.uuid}:`, err);
+            body = '<p class="text-theme-auto my-1 mx-0 p-0" style="font-size: 0.95rem; opacity: 0.6;">Gagal memuat komentar.</p>';
+        }
+
         const resData = await Promise.all(c.comments.map((cmt) => renderContent(cmt)));
 
         return `
