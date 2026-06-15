@@ -69,7 +69,7 @@ export const guest = (() => {
         let name = null;
 
         if (raw.length > 1 && raw[1].length >= 1) {
-            name = window.decodeURIComponent(raw[1]);
+            name = window.decodeURIComponent(raw[1].replace(/\+/g, ' '));
         }
 
         if (name) {
